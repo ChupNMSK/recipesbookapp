@@ -1,13 +1,14 @@
 package task.recipesbook.recipesbookservice.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static util.RandomRecipeGenerator.generateRandomRecipe;
-import static util.RandomRecipeGenerator.generateRandomResipeList;
+import static task.recipesbook.recipesbookservice.util.RandomRecipeGenerator.generateRandomRecipe;
+import static task.recipesbook.recipesbookservice.util.RandomRecipeGenerator.generateRandomResipeList;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import task.recipesbook.recipesbookservice.exception.RecipeNotFoundException;
 import task.recipesbook.recipesbookservice.model.Recipe;
 import task.recipesbook.recipesbookservice.repository.RecipeRepository;
 import task.recipesbook.recipesbookservice.service.impl.RecipeServiceImpl;
@@ -53,12 +55,14 @@ public class RecipeServiceTest {
 
     @Test
     public void shouldFindRecipeById() {
+        Long idForSearch = 1l;
         Recipe recipe = generateRandomRecipe();
+        recipe.setRecipeId(idForSearch);
         when(recipeRepository.findById(recipe.getRecipeId())).thenReturn(Optional.of(recipe));
 
-        Recipe result = recipeService.findRecipeById(recipe.getRecipeId());
+        Recipe result = recipeService.findRecipeById(idForSearch);
 
-        verify(recipeRepository, times(1)).findById(recipe.getRecipeId());
+        verify(recipeRepository, times(1)).findById(idForSearch);
         assertEquals(recipe, result);
     }
 
@@ -93,5 +97,17 @@ public class RecipeServiceTest {
         recipeService.deleteRecipeById(idForDelete);
 
         verify(recipeRepository, times(1)).deleteById(idForDelete);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenFindRecipeByIdNotFound() {
+        Long idForSearch = 1L;
+        when(recipeRepository.findById(idForSearch)).thenReturn(Optional.empty());
+
+        assertThrows(RecipeNotFoundException.class, () -> {
+            recipeService.findRecipeById(idForSearch);
+        });
+
+        verify(recipeRepository, times(1)).findById(idForSearch);
     }
 }

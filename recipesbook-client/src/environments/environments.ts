@@ -1,6 +1,7 @@
 export const environment = {
     production: false,
-    apiBaseUrl: 'http://localhost:8080'
+    apiBaseUrl: 'http://localhost:8081',
+    defaultImg: "assets/default-meal-img.png"
 }
 
 export const pagination = {

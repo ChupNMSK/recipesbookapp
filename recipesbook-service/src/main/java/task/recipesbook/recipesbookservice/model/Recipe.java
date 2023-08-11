@@ -16,14 +16,13 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "ingredients")
 @Table(name = "recipe")
 @Entity
 public class Recipe {
@@ -43,7 +42,8 @@ public class Recipe {
     @Column(name = "short_description")
     private String shortDescription;
 
-    @Column(name = "image_url")
+    @Size(max = 500, message = "URL can't be longer then {max}  characters. Left free for default image")
+    @Column(name = "image_url", length = 500)
     private String imageUrl;
 
     @NotBlank(message = "Guide is required")
@@ -51,7 +51,6 @@ public class Recipe {
     @Column(name = "guide", length = 800)
     private String guide;
 
-    @NotEmpty(message = "At least one ingredient is required")
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "recipe_ingredient",
